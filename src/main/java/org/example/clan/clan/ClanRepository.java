@@ -2,12 +2,12 @@ package org.example.clan.clan;
 
 import java.util.List;
 
-public interface ClanService {
+public interface ClanRepository {
 
     Clan getClan(long clanId);
 
     List<Clan> getAllClans();
 
-    void createClan(String clanName);
+    void createClan(Clan clan);
 
 }

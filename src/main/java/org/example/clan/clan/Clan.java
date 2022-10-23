@@ -1,5 +1,7 @@
 package org.example.clan.clan;
 
+import java.util.Objects;
+
 public class Clan {
     private final long id;
     private String name;
@@ -29,5 +31,18 @@ public class Clan {
 
     public void setGold(int gold) {
         this.gold = gold;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Clan clan = (Clan) o;
+        return id == clan.id && gold == clan.gold && name.equals(clan.name);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
     }
 }

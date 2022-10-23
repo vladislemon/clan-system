@@ -2,12 +2,12 @@ package org.example.clan.user;
 
 import java.util.List;
 
-public interface UserService {
+public interface UserRepository {
 
     User getUser(long userId);
 
     List<User> getAllUsers();
 
-    void createUser(String userName);
+    void createUser(User user);
 
 }

@@ -2,12 +2,12 @@ package org.example.clan.task;
 
 import java.util.List;
 
-public interface TaskService {
+public interface TaskRepository {
 
     Task getTask(long taskId);
 
     List<Task> getAllTasks();
 
-    void createTask(int goldReward);
+    void createTask(Task task);
 
 }

@@ -185,8 +185,9 @@ public class GoldTransactionServiceImpl implements GoldTransactionService {
     }
 
     private void flush() {
-        //TODO next 5 lines of code must execute in single DB transaction
+        //TODO following repository calls must be in single DB transaction
         for (GoldTransaction pendingTransaction : pendingTransactions) {
+            //TODO: batch update
             goldTransactionRepository.createGoldTransaction(pendingTransaction);
         }
         userGoldCache.forEach((userId, gold) -> userService.setUserGold(userId, gold.get()));

@@ -6,6 +6,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public class ClanRepositoryImpl implements ClanRepository {
     private final ConnectionManager connectionManager;
@@ -35,10 +36,30 @@ public class ClanRepositoryImpl implements ClanRepository {
     }
 
     @Override
+    public Optional<Clan> findClanByName(String clanName) {
+        String sql = "SELECT * FROM clans WHERE name = ?";
+        try {
+            return connectionManager.executeQuery(sql, this::extractClanOrEmpty, clanName);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
     public void createClan(Clan clan) {
         String sql = "INSERT INTO clans (name, gold) VALUES (?, ?)";
         try {
             connectionManager.executeUpdate(sql, clan.getName(), clan.getGold());
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public void updateClan(Clan clan) {
+        String sql = "UPDATE clans SET name = ?, gold = ? WHERE id = ?";
+        try {
+            connectionManager.executeUpdate(sql, clan.getName(), clan.getGold(), clan.getId());
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
@@ -52,11 +73,15 @@ public class ClanRepositoryImpl implements ClanRepository {
         );
     }
 
-    private Clan extractClan(ResultSet resultSet) throws SQLException {
+    private Optional<Clan> extractClanOrEmpty(ResultSet resultSet) throws SQLException {
         if (resultSet.next()) {
-            return mapToClan(resultSet);
+            return Optional.of(mapToClan(resultSet));
         }
-        throw new IllegalArgumentException("Clan not found");
+        return Optional.empty();
+    }
+
+    private Clan extractClan(ResultSet resultSet) throws SQLException {
+        return extractClanOrEmpty(resultSet).orElseThrow(() -> new IllegalArgumentException("Clan not found"));
     }
 
     private List<Clan> extractClans(ResultSet resultSet) throws SQLException {

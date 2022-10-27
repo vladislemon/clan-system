@@ -2,11 +2,7 @@ package org.example.clan.transaction.gold;
 
 import java.util.List;
 
-public interface GoldTransactionService {
-
-    void sendGoldFromUserToClan(long userId, long clanId, int amount, String description) throws InterruptedException;
-
-    void sendGoldFromTaskToClan(long taskId, long clanId, String description) throws InterruptedException;
+public interface GoldTransactionRepository {
 
     GoldTransaction getGoldTransaction(long goldTransactionId);
 
@@ -15,5 +11,7 @@ public interface GoldTransactionService {
     List<GoldTransaction> getGoldTransactionsByClanId(long clanId);
 
     List<GoldTransaction> getGoldTransactionsByTaskId(long taskId);
+
+    void createGoldTransaction(GoldTransaction transaction);
 
 }

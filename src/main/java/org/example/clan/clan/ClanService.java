@@ -1,6 +1,7 @@
 package org.example.clan.clan;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface ClanService {
 
@@ -8,6 +9,10 @@ public interface ClanService {
 
     List<Clan> getAllClans();
 
-    void createClan(String clanName);
+    Optional<Clan> findClanByName(String clanName);
+
+    void createClan(String clanName, int gold);
+
+    void setClanGold(long clanId, int gold);
 
 }

@@ -1,10 +1,7 @@
 package org.example.clan.util;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
+import java.time.Instant;
 
 public class ConnectionManager {
     private final Connection connection;
@@ -52,6 +49,8 @@ public class ConnectionManager {
                 statement.setInt(parameterIndex, (Integer) arg);
             } else if (arg instanceof Long) {
                 statement.setLong(parameterIndex, (Long) arg);
+            } else if (arg instanceof Instant) {
+                statement.setTimestamp(parameterIndex, Timestamp.from((Instant) arg));
             } else {
                 throw new IllegalArgumentException(String.format("Argument \"%s\" unsupported as SQL argument", arg));
             }

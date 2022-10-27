@@ -1,6 +1,7 @@
 package org.example.clan.clan;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface ClanRepository {
 
@@ -8,6 +9,9 @@ public interface ClanRepository {
 
     List<Clan> getAllClans();
 
+    Optional<Clan> findClanByName(String clanName);
+
     void createClan(Clan clan);
 
+    void updateClan(Clan clan);
 }

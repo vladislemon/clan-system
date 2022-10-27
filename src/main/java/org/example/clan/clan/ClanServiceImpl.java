@@ -1,6 +1,7 @@
 package org.example.clan.clan;
 
 import java.util.List;
+import java.util.Optional;
 
 public class ClanServiceImpl implements ClanService {
     private final ClanRepository clanRepository;
@@ -20,8 +21,20 @@ public class ClanServiceImpl implements ClanService {
     }
 
     @Override
-    public void createClan(String clanName) {
-        Clan clan = new Clan(0, clanName, 0);
+    public Optional<Clan> findClanByName(String clanName) {
+        return clanRepository.findClanByName(clanName);
+    }
+
+    @Override
+    public void createClan(String clanName, int gold) {
+        Clan clan = new Clan(0, clanName, gold);
         clanRepository.createClan(clan);
+    }
+
+    @Override
+    public void setClanGold(long clanId, int gold) {
+        Clan clan = getClan(clanId);
+        clan.setGold(gold);
+        clanRepository.updateClan(clan);
     }
 }

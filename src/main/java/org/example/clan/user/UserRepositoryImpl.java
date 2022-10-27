@@ -6,6 +6,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public class UserRepositoryImpl implements UserRepository {
     private final ConnectionManager connectionManager;
@@ -35,10 +36,30 @@ public class UserRepositoryImpl implements UserRepository {
     }
 
     @Override
+    public Optional<User> findUserByName(String userName) {
+        String sql = "SELECT * FROM users WHERE name = ?";
+        try {
+            return connectionManager.executeQuery(sql, this::extractUserOrEmpty, userName);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
     public void createUser(User user) {
         String sql = "INSERT INTO users (name, gold) VALUES (?, ?)";
         try {
             connectionManager.executeUpdate(sql, user.getName(), user.getGold());
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public void updateUser(User user) {
+        String sql = "UPDATE users SET name = ?, gold = ? WHERE id = ?";
+        try {
+            connectionManager.executeUpdate(sql, user.getName(), user.getGold(), user.getId());
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
@@ -52,11 +73,15 @@ public class UserRepositoryImpl implements UserRepository {
         );
     }
 
-    private User extractUser(ResultSet resultSet) throws SQLException {
+    private Optional<User> extractUserOrEmpty(ResultSet resultSet) throws SQLException {
         if (resultSet.next()) {
-            return mapToUser(resultSet);
+            return Optional.of(mapToUser(resultSet));
         }
-        throw new IllegalArgumentException("User not found");
+        return Optional.empty();
+    }
+
+    private User extractUser(ResultSet resultSet) throws SQLException {
+        return extractUserOrEmpty(resultSet).orElseThrow(() -> new IllegalArgumentException("User not found"));
     }
 
     private List<User> extractUsers(ResultSet resultSet) throws SQLException {

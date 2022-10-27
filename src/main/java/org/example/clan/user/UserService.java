@@ -1,6 +1,7 @@
 package org.example.clan.user;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface UserService {
 
@@ -8,6 +9,10 @@ public interface UserService {
 
     List<User> getAllUsers();
 
-    void createUser(String userName);
+    Optional<User> findUserByName(String userName);
+
+    void createUser(String userName, int gold);
+
+    void setUserGold(long userId, int gold);
 
 }

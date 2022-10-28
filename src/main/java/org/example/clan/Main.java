@@ -4,9 +4,8 @@ import spark.Spark;
 
 public class Main {
     public static void main(String[] args) throws Exception {
+        Spark.staticFileLocation("public");
         ServiceLocator.init();
         ServiceLocator.getDbInitializer().createTables();
-        Spark.staticFileLocation("public");
-        Spark.get("/hello", (request, response) -> "Hello");
     }
 }

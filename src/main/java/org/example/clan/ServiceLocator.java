@@ -1,25 +1,18 @@
 package org.example.clan;
 
-import org.example.clan.clan.ClanRepository;
-import org.example.clan.clan.ClanRepositoryImpl;
-import org.example.clan.clan.ClanService;
-import org.example.clan.clan.ClanServiceImpl;
-import org.example.clan.task.TaskRepository;
-import org.example.clan.task.TaskRepositoryImpl;
-import org.example.clan.task.TaskService;
-import org.example.clan.task.TaskServiceImpl;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.example.clan.clan.*;
+import org.example.clan.task.*;
 import org.example.clan.transaction.gold.GoldTransactionRepository;
 import org.example.clan.transaction.gold.GoldTransactionRepositoryImpl;
 import org.example.clan.transaction.gold.GoldTransactionService;
 import org.example.clan.transaction.gold.GoldTransactionServiceImpl;
-import org.example.clan.user.UserRepository;
-import org.example.clan.user.UserRepositoryImpl;
-import org.example.clan.user.UserService;
-import org.example.clan.user.UserServiceImpl;
+import org.example.clan.user.*;
 import org.example.clan.util.ConnectionManager;
 
 public class ServiceLocator {
     private static ServiceLocator INSTANCE;
+    private final ObjectMapper objectMapper;
     private final ConnectionManager connectionManager;
     private final DbInitializer dbInitializer;
     private final UserRepository userRepository;
@@ -30,6 +23,12 @@ public class ServiceLocator {
     private final ClanService clanService;
     private final TaskService taskService;
     private final GoldTransactionService goldTransactionService;
+    private final UserMapper userMapper;
+    private final ClanMapper clanMapper;
+    private final TaskMapper taskMapper;
+    private final UserController userController;
+    private final ClanController clanController;
+    private final TaskController taskController;
 
     public static synchronized void init() {
         if (INSTANCE != null) {
@@ -40,6 +39,10 @@ public class ServiceLocator {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public static ObjectMapper getObjectMapper() {
+        return getInstance().objectMapper;
     }
 
     public static ConnectionManager getConnectionManager() {
@@ -82,7 +85,32 @@ public class ServiceLocator {
         return getInstance().goldTransactionService;
     }
 
+    public static UserMapper getUserMapper() {
+        return getInstance().userMapper;
+    }
+
+    public static ClanMapper getClanMapper() {
+        return getInstance().clanMapper;
+    }
+
+    public static TaskMapper getTaskMapper() {
+        return getInstance().taskMapper;
+    }
+
+    public static UserController getUserController() {
+        return getInstance().userController;
+    }
+
+    public static ClanController getClanController() {
+        return getInstance().clanController;
+    }
+
+    public static TaskController getTaskController() {
+        return getInstance().taskController;
+    }
+
     private ServiceLocator() throws Exception {
+        objectMapper = new ObjectMapper();
         connectionManager = new ConnectionManager(
                 System.getenv("DB_URL"),
                 System.getenv("DB_USER"),
@@ -97,6 +125,12 @@ public class ServiceLocator {
         clanService = new ClanServiceImpl(clanRepository);
         taskService = new TaskServiceImpl(taskRepository);
         goldTransactionService = new GoldTransactionServiceImpl(goldTransactionRepository, userService, clanService, taskService);
+        userMapper = new UserMapper();
+        clanMapper = new ClanMapper();
+        taskMapper = new TaskMapper();
+        userController = new UserController(userService, userMapper, objectMapper);
+        clanController = new ClanController(clanService, clanMapper, objectMapper);
+        taskController = new TaskController(taskService, taskMapper, objectMapper);
     }
 
     private static ServiceLocator getInstance() {

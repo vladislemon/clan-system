@@ -30,7 +30,6 @@ public class UserController {
 
     public Object getAllUsers(Request request, Response response) throws JsonProcessingException {
         List<UserDto> userDtos = userMapper.toDtos(userService.getAllUsers());
-        userDtos.add(new UserDto("ololo", 5));
         return objectMapper.writeValueAsBytes(userDtos);
     }
 }

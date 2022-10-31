@@ -30,7 +30,6 @@ public class ClanController {
 
     public Object getAllClans(Request request, Response response) throws JsonProcessingException {
         List<ClanDto> clanDtos = clanMapper.toDtos(clanService.getAllClans());
-        clanDtos.add(new ClanDto("ololo", 5));
         return objectMapper.writeValueAsBytes(clanDtos);
     }
 }

@@ -30,7 +30,6 @@ public class TaskController {
 
     public Object getAllTasks(Request request, Response response) throws JsonProcessingException {
         List<TaskDto> taskDtos = taskMapper.toDtos(taskService.getAllTasks());
-        taskDtos.add(new TaskDto(5));
         return objectMapper.writeValueAsBytes(taskDtos);
     }
 }

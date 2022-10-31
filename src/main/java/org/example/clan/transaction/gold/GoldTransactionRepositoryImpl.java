@@ -41,6 +41,16 @@ public class GoldTransactionRepositoryImpl implements GoldTransactionRepository 
     }
 
     @Override
+    public List<GoldTransaction> getAllGoldTransactions() {
+        String sql = "SELECT * FROM gold_transactions";
+        try {
+            return connectionManager.executeQuery(sql, this::extractGoldTransactions);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
     public void createGoldTransaction(GoldTransaction transaction) {
         String sql = "INSERT INTO gold_transactions (source_type, source_id, recipient_type, recipient_id, amount, description, created_at) " +
                 "VALUES (?, ?, ?, ?, ?, ?, ?)";

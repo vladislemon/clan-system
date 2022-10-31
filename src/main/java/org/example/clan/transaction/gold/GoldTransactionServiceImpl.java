@@ -121,6 +121,50 @@ public class GoldTransactionServiceImpl implements GoldTransactionService {
     }
 
     @Override
+    public void createTransaction(GoldTransaction goldTransaction) throws InterruptedException {
+        if (goldTransaction.getSourceType() == TransactionSubjectType.USER) {
+            if (goldTransaction.getRecipientType() == TransactionSubjectType.CLAN) {
+                sendGoldFromUserToClan(
+                        goldTransaction.getSourceId(),
+                        goldTransaction.getRecipientId(),
+                        goldTransaction.getAmount(),
+                        goldTransaction.getDescription()
+                );
+            } else {
+                throw new UnsupportedOperationException();
+            }
+        } else if (goldTransaction.getSourceType() == TransactionSubjectType.TASK) {
+            if (goldTransaction.getRecipientType() == TransactionSubjectType.CLAN) {
+                sendGoldFromTaskToClan(
+                        goldTransaction.getSourceId(),
+                        goldTransaction.getRecipientId(),
+                        goldTransaction.getDescription()
+                );
+            } else {
+                throw new UnsupportedOperationException();
+            }
+        } else if (goldTransaction.getSourceType() == TransactionSubjectType.SYSTEM) {
+            if (goldTransaction.getRecipientType() == TransactionSubjectType.USER) {
+                addGoldToUser(
+                        goldTransaction.getRecipientId(),
+                        goldTransaction.getAmount(),
+                        goldTransaction.getDescription()
+                );
+            } else if (goldTransaction.getRecipientType() == TransactionSubjectType.CLAN) {
+                addGoldToClan(
+                        goldTransaction.getRecipientId(),
+                        goldTransaction.getAmount(),
+                        goldTransaction.getDescription()
+                );
+            } else {
+                throw new UnsupportedOperationException();
+            }
+        } else {
+            throw new UnsupportedOperationException();
+        }
+    }
+
+    @Override
     public GoldTransaction getGoldTransaction(long goldTransactionId) {
         for (GoldTransaction transaction : pendingTransactions) {
             if (transaction.getId() == goldTransactionId) {
@@ -160,6 +204,13 @@ public class GoldTransactionServiceImpl implements GoldTransactionService {
                 transactions.add(transaction);
             }
         }
+        return transactions;
+    }
+
+    @Override
+    public List<GoldTransaction> getAllGoldTransactions() {
+        List<GoldTransaction> transactions = new ArrayList<>(goldTransactionRepository.getAllGoldTransactions());
+        transactions.addAll(pendingTransactions);
         return transactions;
     }
 

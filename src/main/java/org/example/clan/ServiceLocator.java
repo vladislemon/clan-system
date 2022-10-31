@@ -3,10 +3,7 @@ package org.example.clan;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.example.clan.clan.*;
 import org.example.clan.task.*;
-import org.example.clan.transaction.gold.GoldTransactionRepository;
-import org.example.clan.transaction.gold.GoldTransactionRepositoryImpl;
-import org.example.clan.transaction.gold.GoldTransactionService;
-import org.example.clan.transaction.gold.GoldTransactionServiceImpl;
+import org.example.clan.transaction.gold.*;
 import org.example.clan.user.*;
 import org.example.clan.util.ConnectionManager;
 
@@ -26,9 +23,11 @@ public class ServiceLocator {
     private final UserMapper userMapper;
     private final ClanMapper clanMapper;
     private final TaskMapper taskMapper;
+    private final GoldTransactionMapper goldTransactionMapper;
     private final UserController userController;
     private final ClanController clanController;
     private final TaskController taskController;
+    private final GoldTransactionController goldTransactionController;
 
     public static synchronized void init() {
         if (INSTANCE != null) {
@@ -97,6 +96,10 @@ public class ServiceLocator {
         return getInstance().taskMapper;
     }
 
+    public static GoldTransactionMapper getGoldTransactionMapper() {
+        return getInstance().goldTransactionMapper;
+    }
+
     public static UserController getUserController() {
         return getInstance().userController;
     }
@@ -107,6 +110,10 @@ public class ServiceLocator {
 
     public static TaskController getTaskController() {
         return getInstance().taskController;
+    }
+
+    public static GoldTransactionController getGoldTransactionController() {
+        return getInstance().goldTransactionController;
     }
 
     private ServiceLocator() throws Exception {
@@ -128,9 +135,11 @@ public class ServiceLocator {
         userMapper = new UserMapper();
         clanMapper = new ClanMapper();
         taskMapper = new TaskMapper();
+        goldTransactionMapper = new GoldTransactionMapper();
         userController = new UserController(userService, userMapper, objectMapper);
         clanController = new ClanController(clanService, clanMapper, objectMapper);
         taskController = new TaskController(taskService, taskMapper, objectMapper);
+        goldTransactionController = new GoldTransactionController(goldTransactionService, goldTransactionMapper, objectMapper);
     }
 
     private static ServiceLocator getInstance() {

@@ -12,6 +12,7 @@ public interface GoldTransactionRepository {
 
     List<GoldTransaction> getGoldTransactionsByTaskId(long taskId);
 
-    void createGoldTransaction(GoldTransaction transaction);
+    List<GoldTransaction> getAllGoldTransactions();
 
+    void createGoldTransaction(GoldTransaction transaction);
 }

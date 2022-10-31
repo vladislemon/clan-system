@@ -12,6 +12,8 @@ public interface GoldTransactionService {
 
     void addGoldToClan(long clanId, int amount, String description) throws InterruptedException;
 
+    void createTransaction(GoldTransaction goldTransaction) throws InterruptedException;
+
     GoldTransaction getGoldTransaction(long goldTransactionId);
 
     List<GoldTransaction> getGoldTransactionsByUserId(long userId);
@@ -19,5 +21,7 @@ public interface GoldTransactionService {
     List<GoldTransaction> getGoldTransactionsByClanId(long clanId);
 
     List<GoldTransaction> getGoldTransactionsByTaskId(long taskId);
+
+    List<GoldTransaction> getAllGoldTransactions();
 
 }

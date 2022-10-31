@@ -121,10 +121,10 @@ public class ServiceLocator {
         clanRepository = new ClanRepositoryImpl(connectionManager);
         taskRepository = new TaskRepositoryImpl(connectionManager);
         goldTransactionRepository = new GoldTransactionRepositoryImpl(connectionManager);
-        userService = new UserServiceImpl(userRepository);
-        clanService = new ClanServiceImpl(clanRepository);
         taskService = new TaskServiceImpl(taskRepository);
-        goldTransactionService = new GoldTransactionServiceImpl(goldTransactionRepository, userService, clanService, taskService);
+        goldTransactionService = new GoldTransactionServiceImpl(userRepository, clanRepository, taskRepository, goldTransactionRepository);
+        userService = new UserServiceImpl(userRepository, goldTransactionService);
+        clanService = new ClanServiceImpl(clanRepository, goldTransactionService);
         userMapper = new UserMapper();
         clanMapper = new ClanMapper();
         taskMapper = new TaskMapper();

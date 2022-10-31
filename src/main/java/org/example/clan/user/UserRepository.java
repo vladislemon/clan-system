@@ -15,4 +15,6 @@ public interface UserRepository {
 
     void updateUser(User user);
 
+    void setUserGold(long userId, int gold);
+
 }

@@ -11,8 +11,5 @@ public interface UserService {
 
     Optional<User> findUserByName(String userName);
 
-    void createUser(String userName, int gold);
-
-    void setUserGold(long userId, int gold);
-
+    void createUser(String userName, int gold) throws InterruptedException;
 }

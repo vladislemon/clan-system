@@ -14,4 +14,6 @@ public interface ClanRepository {
     void createClan(Clan clan);
 
     void updateClan(Clan clan);
+
+    void setClanGold(long clanId, int gold);
 }

@@ -8,6 +8,10 @@ public interface GoldTransactionService {
 
     void sendGoldFromTaskToClan(long taskId, long clanId, String description) throws InterruptedException;
 
+    void addGoldToUser(long userId, int amount, String description) throws InterruptedException;
+
+    void addGoldToClan(long clanId, int amount, String description) throws InterruptedException;
+
     GoldTransaction getGoldTransaction(long goldTransactionId);
 
     List<GoldTransaction> getGoldTransactionsByUserId(long userId);

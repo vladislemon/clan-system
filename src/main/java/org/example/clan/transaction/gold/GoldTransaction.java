@@ -57,6 +57,30 @@ public class GoldTransaction {
                 Instant.now());
     }
 
+    public static GoldTransaction systemToUser(long recipientUserId, int amount, String description) {
+        return new GoldTransaction(
+                0,
+                TransactionSubjectType.SYSTEM,
+                0,
+                TransactionSubjectType.USER,
+                recipientUserId,
+                amount,
+                description,
+                Instant.now());
+    }
+
+    public static GoldTransaction systemToClan(long recipientClanId, int amount, String description) {
+        return new GoldTransaction(
+                0,
+                TransactionSubjectType.SYSTEM,
+                0,
+                TransactionSubjectType.CLAN,
+                recipientClanId,
+                amount,
+                description,
+                Instant.now());
+    }
+
     public long getId() {
         return id;
     }

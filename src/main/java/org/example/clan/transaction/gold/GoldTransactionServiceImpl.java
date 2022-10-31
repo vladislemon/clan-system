@@ -1,9 +1,9 @@
 package org.example.clan.transaction.gold;
 
-import org.example.clan.clan.ClanService;
-import org.example.clan.task.TaskService;
+import org.example.clan.clan.ClanRepository;
+import org.example.clan.task.TaskRepository;
 import org.example.clan.transaction.TransactionSubjectType;
-import org.example.clan.user.UserService;
+import org.example.clan.user.UserRepository;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,10 +22,10 @@ public class GoldTransactionServiceImpl implements GoldTransactionService {
     private static final int NEED_FLUSH_PENDING_TRANSACTIONS = 100;
     private static final int FLUSH_INTERVAL = 200;
     private static final int MAX_PENDING_TRANSACTIONS = 10000;
+    private final UserRepository userRepository;
+    private final ClanRepository clanRepository;
+    private final TaskRepository taskRepository;
     private final GoldTransactionRepository goldTransactionRepository;
-    private final UserService userService;
-    private final ClanService clanService;
-    private final TaskService taskService;
     private final AtomicInteger pendingTransactionsCount = new AtomicInteger();
     private final ReadWriteLock flushLock = new ReentrantReadWriteLock();
     private final Condition maxPendingTransactionsCondition = flushLock.writeLock().newCondition();
@@ -34,14 +34,14 @@ public class GoldTransactionServiceImpl implements GoldTransactionService {
     private Map<Long, AtomicInteger> userGoldCache = new ConcurrentHashMap<>();
     private Map<Long, AtomicInteger> clanGoldCache = new ConcurrentHashMap<>();
 
-    public GoldTransactionServiceImpl(GoldTransactionRepository goldTransactionRepository,
-                                      UserService userService,
-                                      ClanService clanService,
-                                      TaskService taskService) {
+    public GoldTransactionServiceImpl(UserRepository userRepository,
+                                      ClanRepository clanRepository,
+                                      TaskRepository taskRepository,
+                                      GoldTransactionRepository goldTransactionRepository) {
+        this.userRepository = userRepository;
+        this.clanRepository = clanRepository;
+        this.taskRepository = taskRepository;
         this.goldTransactionRepository = goldTransactionRepository;
-        this.userService = userService;
-        this.clanService = clanService;
-        this.taskService = taskService;
         Thread flushingThread = new Thread(this::doPeriodicFlush, "Gold-Transactions-Flushing-Thread");
         flushingThread.setDaemon(true);
         flushingThread.start();
@@ -49,6 +49,9 @@ public class GoldTransactionServiceImpl implements GoldTransactionService {
 
     @Override
     public void sendGoldFromUserToClan(long userId, long clanId, int amount, String description) throws InterruptedException {
+        if (amount == 0) {
+            return;
+        }
         waitIfQueueFull();
         flushLock.readLock().lock();
         try {
@@ -73,10 +76,45 @@ public class GoldTransactionServiceImpl implements GoldTransactionService {
         waitIfQueueFull();
         flushLock.readLock().lock();
         try {
-            int taskGoldReward = taskService.getTask(taskId).getGoldReward();
+            int taskGoldReward = taskRepository.getTask(taskId).getGoldReward();
+            if (taskGoldReward == 0) {
+                return;
+            }
             AtomicInteger clanGold = getClanGold(clanId);
             clanGold.addAndGet(taskGoldReward);
             addPendingTransaction(GoldTransaction.taskToClan(taskId, clanId, taskGoldReward, description));
+        } finally {
+            flushLock.readLock().unlock();
+        }
+    }
+
+    @Override
+    public void addGoldToUser(long userId, int amount, String description) throws InterruptedException {
+        if (amount == 0) {
+            return;
+        }
+        waitIfQueueFull();
+        flushLock.readLock().lock();
+        try {
+            AtomicInteger userGold = getUserGold(userId);
+            userGold.addAndGet(amount);
+            addPendingTransaction(GoldTransaction.systemToUser(userId, amount, description));
+        } finally {
+            flushLock.readLock().unlock();
+        }
+    }
+
+    @Override
+    public void addGoldToClan(long clanId, int amount, String description) throws InterruptedException {
+        if (amount == 0) {
+            return;
+        }
+        waitIfQueueFull();
+        flushLock.readLock().lock();
+        try {
+            AtomicInteger clanGold = getClanGold(clanId);
+            clanGold.addAndGet(amount);
+            addPendingTransaction(GoldTransaction.systemToClan(clanId, amount, description));
         } finally {
             flushLock.readLock().unlock();
         }
@@ -128,7 +166,7 @@ public class GoldTransactionServiceImpl implements GoldTransactionService {
     private AtomicInteger getUserGold(long userId) {
         AtomicInteger userGold = userGoldCache.get(userId);
         if (userGold == null) {
-            userGold = new AtomicInteger(userService.getUser(userId).getGold());
+            userGold = new AtomicInteger(userRepository.getUser(userId).getGold());
             AtomicInteger alreadyPresentGold = userGoldCache.putIfAbsent(userId, userGold);
             if (alreadyPresentGold != null) {
                 return alreadyPresentGold;
@@ -140,7 +178,7 @@ public class GoldTransactionServiceImpl implements GoldTransactionService {
     private AtomicInteger getClanGold(long clanId) {
         AtomicInteger clanGold = clanGoldCache.get(clanId);
         if (clanGold == null) {
-            clanGold = new AtomicInteger(clanService.getClan(clanId).getGold());
+            clanGold = new AtomicInteger(clanRepository.getClan(clanId).getGold());
             AtomicInteger alreadyPresentGold = clanGoldCache.putIfAbsent(clanId, clanGold);
             if (alreadyPresentGold != null) {
                 return alreadyPresentGold;
@@ -190,8 +228,8 @@ public class GoldTransactionServiceImpl implements GoldTransactionService {
             //TODO: batch update
             goldTransactionRepository.createGoldTransaction(pendingTransaction);
         }
-        userGoldCache.forEach((userId, gold) -> userService.setUserGold(userId, gold.get()));
-        clanGoldCache.forEach((clanId, gold) -> clanService.setClanGold(clanId, gold.get()));
+        userGoldCache.forEach((userId, gold) -> userRepository.setUserGold(userId, gold.get()));
+        clanGoldCache.forEach((clanId, gold) -> clanRepository.setClanGold(clanId, gold.get()));
         pendingTransactions = new ConcurrentLinkedQueue<>();
         userGoldCache = new ConcurrentHashMap<>();
         clanGoldCache = new ConcurrentHashMap<>();

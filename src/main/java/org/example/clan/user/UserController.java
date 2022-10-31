@@ -22,7 +22,7 @@ public class UserController {
         Spark.get("/api/users", this::getAllUsers);
     }
 
-    public Object createUser(Request request, Response response) throws IOException {
+    public Object createUser(Request request, Response response) throws IOException, InterruptedException {
         UserDto userDto = objectMapper.readValue(request.bodyAsBytes(), UserDto.class);
         userService.createUser(userDto.getName(), userDto.getGold());
         return "";

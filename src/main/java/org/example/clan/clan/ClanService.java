@@ -11,8 +11,5 @@ public interface ClanService {
 
     Optional<Clan> findClanByName(String clanName);
 
-    void createClan(String clanName, int gold);
-
-    void setClanGold(long clanId, int gold);
-
+    void createClan(String clanName, int gold) throws InterruptedException;
 }

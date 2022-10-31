@@ -65,6 +65,16 @@ public class ClanRepositoryImpl implements ClanRepository {
         }
     }
 
+    @Override
+    public void setClanGold(long clanId, int gold) {
+        String sql = "UPDATE clans SET gold = ? WHERE id = ?";
+        try {
+            connectionManager.executeUpdate(sql, gold, clanId);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     private Clan mapToClan(ResultSet resultSet) throws SQLException {
         return new Clan(
                 resultSet.getLong("id"),

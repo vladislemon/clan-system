@@ -18,7 +18,7 @@ class UserRepositoryImplTest {
 
     @BeforeAll
     static void beforeAll() throws SQLException {
-        connectionManager = new ConnectionManager("jdbc:h2:mem:test", "", "");
+        connectionManager = new ConnectionManager("jdbc:h2:mem:", "", "");
         new DbInitializer(connectionManager).createUsersTable();
     }
 

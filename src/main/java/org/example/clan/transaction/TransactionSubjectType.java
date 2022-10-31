@@ -4,4 +4,5 @@ public enum TransactionSubjectType {
     USER,
     CLAN,
     TASK,
+    SYSTEM,
 }

@@ -22,7 +22,7 @@ public class ClanController {
         Spark.get("/api/clans", this::getAllClans);
     }
 
-    public Object createClan(Request request, Response response) throws IOException {
+    public Object createClan(Request request, Response response) throws IOException, InterruptedException {
         ClanDto clanDto = objectMapper.readValue(request.bodyAsBytes(), ClanDto.class);
         clanService.createClan(clanDto.getName(), clanDto.getGold());
         return "";

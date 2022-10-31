@@ -1,17 +1,10 @@
 package org.example.clan.transaction.gold;
 
 import org.example.clan.DbInitializer;
-import org.example.clan.clan.Clan;
-import org.example.clan.clan.ClanRepositoryImpl;
-import org.example.clan.clan.ClanService;
-import org.example.clan.clan.ClanServiceImpl;
+import org.example.clan.clan.*;
+import org.example.clan.task.TaskRepository;
 import org.example.clan.task.TaskRepositoryImpl;
-import org.example.clan.task.TaskService;
-import org.example.clan.task.TaskServiceImpl;
-import org.example.clan.user.User;
-import org.example.clan.user.UserRepositoryImpl;
-import org.example.clan.user.UserService;
-import org.example.clan.user.UserServiceImpl;
+import org.example.clan.user.*;
 import org.example.clan.util.ConnectionManager;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -30,19 +23,21 @@ class GoldTransactionServiceImplTest {
 
     static ConnectionManager connectionManager;
     static GoldTransactionRepository goldTransactionRepository;
-    UserService userService = new UserServiceImpl(new UserRepositoryImpl(connectionManager));
-    ClanService clanService = new ClanServiceImpl(new ClanRepositoryImpl(connectionManager));
-    TaskService taskService = new TaskServiceImpl(new TaskRepositoryImpl(connectionManager));
+    UserRepository userRepository = new UserRepositoryImpl(connectionManager);
+    ClanRepository clanRepository = new ClanRepositoryImpl(connectionManager);
+    TaskRepository taskRepository = new TaskRepositoryImpl(connectionManager);
     GoldTransactionServiceImpl goldTransactionService = new GoldTransactionServiceImpl(
-            goldTransactionRepository,
-            userService,
-            clanService,
-            taskService
+            userRepository,
+            clanRepository,
+            taskRepository,
+            goldTransactionRepository
     );
+    UserService userService = new UserServiceImpl(userRepository, goldTransactionService);
+    ClanService clanService = new ClanServiceImpl(clanRepository, goldTransactionService);
 
     @BeforeAll
     static void beforeAll() throws SQLException {
-        connectionManager = new ConnectionManager("jdbc:h2:mem:test", "", "");
+        connectionManager = new ConnectionManager("jdbc:h2:mem:", "", "");
         new DbInitializer(connectionManager).createTables();
         goldTransactionRepository = spy(new GoldTransactionRepositoryImpl(connectionManager));
     }
@@ -53,7 +48,7 @@ class GoldTransactionServiceImplTest {
     }
 
     @Test
-    void sendGoldFromUserToClan_notEnoughGold() {
+    void sendGoldFromUserToClan_notEnoughGold() throws InterruptedException {
         String userName = "user_with_not_enough_gold";
         String clanName = "clan_that_will_be_with_no_gold";
         userService.createUser(userName, 0);
@@ -76,7 +71,7 @@ class GoldTransactionServiceImplTest {
         User user = userService.findUserByName(userName).orElseThrow(() -> new IllegalStateException("User not found"));
         Clan clan = clanService.findClanByName(clanName).orElseThrow(() -> new IllegalStateException("Clan not found"));
         goldTransactionService.sendGoldFromUserToClan(user.getId(), clan.getId(), amount, description);
-        GoldTransaction goldTransaction = goldTransactionService.getGoldTransactionsByUserId(user.getId()).get(0);
+        GoldTransaction goldTransaction = goldTransactionService.getGoldTransactionsByUserId(user.getId()).get(1);
         assertEquals(amount, goldTransaction.getAmount());
         assertEquals(description, goldTransaction.getDescription());
     }

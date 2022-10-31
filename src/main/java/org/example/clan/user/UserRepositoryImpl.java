@@ -65,6 +65,16 @@ public class UserRepositoryImpl implements UserRepository {
         }
     }
 
+    @Override
+    public void setUserGold(long userId, int gold) {
+        String sql = "UPDATE users SET gold = ? WHERE id = ?";
+        try {
+            connectionManager.executeUpdate(sql, gold, userId);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     private User mapToUser(ResultSet resultSet) throws SQLException {
         return new User(
                 resultSet.getLong("id"),

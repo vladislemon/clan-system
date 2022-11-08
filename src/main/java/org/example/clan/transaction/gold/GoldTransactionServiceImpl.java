@@ -250,6 +250,7 @@ public class GoldTransactionServiceImpl implements GoldTransactionService {
     }
 
     private void addPendingTransaction(GoldTransaction transaction) {
+        pendingTransactionsCount.incrementAndGet();
         pendingTransactions.add(transaction);
         flushCountDownLatch.countDown();
     }
@@ -281,6 +282,7 @@ public class GoldTransactionServiceImpl implements GoldTransactionService {
         }
         userGoldCache.forEach((userId, gold) -> userRepository.setUserGold(userId, gold.get()));
         clanGoldCache.forEach((clanId, gold) -> clanRepository.setClanGold(clanId, gold.get()));
+        pendingTransactionsCount.set(0);
         pendingTransactions = new ConcurrentLinkedQueue<>();
         userGoldCache = new ConcurrentHashMap<>();
         clanGoldCache = new ConcurrentHashMap<>();
